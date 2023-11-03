@@ -47,14 +47,32 @@ def main():
     except BudgetException as e:
         print(f"Transaction failed: {e}")
 
+    user1 = user_repository.get_user_by_id(1)
+    user2 = user_repository.get_user_by_id(2)
+    print(f"User 1 balance: {user1.account.balance}")
+    print(f"User 2 balance: {user2.account.balance}")
+
     filtered_transactions = transaction_repository.filter_by_amount(0,50)
 
     print("Filtered Transactions:")
     for transaction in filtered_transactions:
         print(f"Transaction ID: {transaction.id}, Amount: {transaction.amount}, Sender: {transaction.sender_id}, Receiver: {transaction.receiver_id}")
 
+    loan_repository = LoanRepository(user_repository)
 
-        
+    loan_repository.do_loan(1, 1000, 0.1, 12)
+
+    try:
+        transaction_repository.execute_and_save(1, 2, 1000, currency)
+        print("Transaction successful")
+    except BudgetException as e:
+        print(f"Transaction failed: {e}")
+
+    user1 = user_repository.get_user_by_id(1)
+    user2 = user_repository.get_user_by_id(2)
+    print(f"User 1 balance: {user1.account.balance}")
+    print(f"User 2 balance: {user2.account.balance}")
+
 
 if __name__ == "__main__":
     main()

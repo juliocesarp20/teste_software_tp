@@ -22,6 +22,13 @@ class LoanRepository:
         loan = Loan(user_id, amount, interest_rate, term_months)
         self.loans.append(loan)
         return loan
+    
+    def do_loan(self, user_id, amount, interest_rate, term_months):
+        loan = self.create_loan(user_id, amount, interest_rate, term_months)
+
+        self.user_repository.deposit_funds(user_id,loan.amount)
+
+    
 
     def get_loans_by_user_id(self, user_id):
         return [loan for loan in self.loans if loan.get_user_id() == user_id]

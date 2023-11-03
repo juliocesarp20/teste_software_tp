@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 
 class Currency(ABC):
     @abstractmethod
-    def __init__(self, value, name):
+    def __init__(self, value, name, symbol = "$"):
         self.value = value
         self.name = name
+        self.symbol = symbol
 
     def convert_to(self, target_currency, amount):
         if not isinstance(target_currency, Currency):
@@ -36,24 +37,24 @@ class Currency(ABC):
 
 class BRL(Currency):
     def __init__(self):
-        super().__init__(0.2, "BRL")
+        super().__init__(0.2, "BRL","R$")
 
 
 class EUR(Currency):
     def __init__(self):
-        super().__init__(1.1, "EUR")
+        super().__init__(1.1, "EUR","€")
 
 
 class USD(Currency):
     def __init__(self):
-        super().__init__(1, "USD")
+        super().__init__(1, "USD","$")
 
 
 class YEN(Currency):
     def __init__(self):
-        super().__init__(0.007, "YEN")
+        super().__init__(0.007, "YEN","¥")
 
 
 class CAD(Currency):
     def __init__(self):
-        super().__init__(0.7, "CAD")
+        super().__init__(0.7, "CAD","C$")

@@ -38,4 +38,4 @@ class Account:
             raise BudgetException("No currency specified for the account.")
 
     def __str__(self):
-        return f"{self.balance} ({self.currency})"
+        return f"{self.balance} = {self.currency} "
