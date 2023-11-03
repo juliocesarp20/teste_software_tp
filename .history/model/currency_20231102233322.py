@@ -10,8 +10,8 @@ class Currency(ABC):
         if not isinstance(target_currency, Currency):
             raise ValueError("Target currency must be an instance of Currency.")
 
-        if amount <= 0:
-            raise ValueError("Amount cannot be negative or zero when converting currencies.")
+        if amount < 0:
+            raise ValueError("Amount cannot be negative when converting currencies.")
 
         if self.value <= 1:
             exchange_rate = self.value / target_currency.value

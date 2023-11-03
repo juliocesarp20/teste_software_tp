@@ -12,7 +12,7 @@ from model.currency import Currency
 if __name__ == "__main__":
     print("Account and transaction management system")
 
-    currency = Currency("abc",3)
+    currency = Currency()
 
     # Create a user repository
     user_repository = UserRepository()

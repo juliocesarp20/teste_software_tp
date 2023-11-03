@@ -56,7 +56,7 @@ def test_convert_to_invalid_target():
 
 def test_convert_to_negative_amount():
     eur = MockCurrency(1.1, "EUR")
-    negative = MockCurrency(50,"ARG")
+    negative = MockCurrency(-50,"ARG")
     with pytest.raises(ValueError) as exc_info:
         eur.convert_to(negative,-100)
     assert str(exc_info.value) == "Amount cannot be negative or zero when converting currencies."

@@ -6,11 +6,11 @@ class Currency(ABC):
         self.value = value
         self.name = name
 
-    def convert_to(self, target_currency, amount):
+    def convert_to(self, target_currency):
         if not isinstance(target_currency, Currency):
             raise ValueError("Target currency must be an instance of Currency.")
 
-        if amount <= 0:
+        if target_currency.value <= 0:
             raise ValueError("Amount cannot be negative or zero when converting currencies.")
 
         if self.value <= 1:

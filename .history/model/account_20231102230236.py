@@ -2,9 +2,10 @@ class BudgetException(BaseException):
     pass
 
 class Account:
-    def __init__(self,initial_balance=0,currency=None):
+    def __init__(self, initial_balance=0,user_id, currency=None):
         self.balance = initial_balance
         self.currency = currency
+        self.user_id = user_id
 
     def deposit(self, amount, target_currency=None):
         if amount <= 0:

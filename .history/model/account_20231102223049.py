@@ -2,7 +2,7 @@ class BudgetException(BaseException):
     pass
 
 class Account:
-    def __init__(self,initial_balance=0,currency=None):
+    def __init__(self, initial_balance=0, currency=None):
         self.balance = initial_balance
         self.currency = currency
 

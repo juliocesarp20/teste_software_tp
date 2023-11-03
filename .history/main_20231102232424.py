@@ -1,4 +1,5 @@
 import os, sys
+from currency import Currency
 model_path = os.path.abspath("model")
 sys.path.append(model_path)
 
@@ -7,12 +8,11 @@ sys.path.append(repository_path)
 
 from model.account import BudgetException
 from repository.user_repository import UserRepository
-from model.currency import Currency
 
 if __name__ == "__main__":
     print("Account and transaction management system")
 
-    currency = Currency("abc",3)
+    currency = Currency()
 
     # Create a user repository
     user_repository = UserRepository()

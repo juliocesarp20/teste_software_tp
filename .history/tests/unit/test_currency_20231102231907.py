@@ -32,7 +32,14 @@ def test_convert_from_equal_to_equal():
     amount = 100
     converted_amount = usd1.convert_to(usd2, amount)
     assert pytest.approx(converted_amount, amount, abs=1e-3)
-    
+
+def test_convert_to_invalid_target():
+        brl = MockCurrency(0.2, "BRL")
+        amount = 100
+        with pytest.raises(ValueError) as exc_info:
+            brl.convert_to("EUR", amount)
+        assert str(exc_info.value) == "Target currency must be an instance of Currency."
+
 def test_convert_from_much_weaker_to_stronger():
     yen = MockCurrency(0.007, "YEN")
     eur = MockCurrency(1.1, "EUR")
@@ -47,30 +54,16 @@ def test_convert_from_stronger_to_much_weaker():
     converted_amount = eur.convert_to(yen, amount)
     assert pytest.approx(converted_amount, amount * (1.1 / 0.007), abs=1e-3)
 
-def test_convert_to_invalid_target():
-    brl = MockCurrency(0.2, "BRL")
-    amount = 100
-    with pytest.raises(ValueError) as exc_info:
-        brl.convert_to("EUR", amount)
-    assert str(exc_info.value) == "Target currency must be an instance of Currency."
+    def test_eq_equal(self):
+        currency1 = Currency(0.2, "BRL")
+        currency2 = Currency(0.2, "BRL")
+        assert currency1 == currency2
 
-def test_convert_to_negative_amount():
-    eur = MockCurrency(1.1, "EUR")
-    negative = MockCurrency(50,"ARG")
-    with pytest.raises(ValueError) as exc_info:
-        eur.convert_to(negative,-100)
-    assert str(exc_info.value) == "Amount cannot be negative or zero when converting currencies."
+    def test_eq_not_equal(self):
+        currency1 = Currency(0.2, "BRL")
+        currency2 = Currency(1.1, "EUR")
+        assert not (currency1 == currency2)
 
-def test_eq_equal():
-    currency1 = MockCurrency(0.2, "BRL")
-    currency2 = MockCurrency(0.2, "BRL")
-    assert currency1 == currency2
-
-def test_eq_not_equal():
-    currency1 = MockCurrency(0.2, "BRL")
-    currency2 = MockCurrency(1.1, "EUR")
-    assert not (currency1 == currency2)
-
-def test_eq_not_instance():
-    currency = MockCurrency(0.2, "BRL")
-    assert not (currency == "BRL")
+    def test_eq_not_instance(self):
+        currency = Currency(0.2, "BRL")
+        assert not (currency == "BRL")
