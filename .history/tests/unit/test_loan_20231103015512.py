@@ -79,7 +79,7 @@ def test_monthly_payment_is_paid_off_over_twelve_month_term(user_fixture):
     term_months = 24
     loan = Loan(user_id, amount, interest_rate, term_months)
 
-    payment_amount = 125
+    payment_amount = 100 
     for _ in range(24):
         loan.make_monthly_payment(payment_amount)
 

@@ -50,11 +50,11 @@ def test_monthly_payment_is_paid_off(user_fixture):
 def test_monthly_payment_is_paid_off_one_month_term(user_fixture):
     user_id = user_fixture
     amount = 1000
-    interest_rate = 0.12
+    interest_rate = 0.5
     term_months = 1
     loan = Loan(user_id, amount, interest_rate, term_months)
 
-    payment_amount = 1010
+    payment_amount = 1000 + 1000 * (0.1 / 12)
     loan.make_monthly_payment(payment_amount)
 
     assert pytest.approx(loan.remaining_balance, abs=1e-2) == 0
@@ -68,19 +68,6 @@ def test_monthly_payment_is_paid_off_twelve_month_term(user_fixture):
 
     payment_amount = 100 
     for _ in range(11):
-        loan.make_monthly_payment(payment_amount)
-
-    assert loan.is_paid_off()
-
-def test_monthly_payment_is_paid_off_over_twelve_month_term(user_fixture):
-    user_id = user_fixture
-    amount = 1000
-    interest_rate = 1
-    term_months = 24
-    loan = Loan(user_id, amount, interest_rate, term_months)
-
-    payment_amount = 125
-    for _ in range(24):
         loan.make_monthly_payment(payment_amount)
 
     assert loan.is_paid_off()

@@ -14,7 +14,7 @@ class LoanRepository:
             raise ValueError("Loan amount must be greater than zero.")
 
         if interest_rate < 0 or interest_rate > self.rate_limit:
-            raise ValueError(f"Interest rate must be between 0 and {self.rate_limit}.")
+            raise ValueError("Interest rate must be between 0 and {self.rate_limit}.")
 
         if term_months <= 0:
             raise ValueError("Loan term must be greater than zero.")
