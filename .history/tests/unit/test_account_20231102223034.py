@@ -1,6 +1,6 @@
 import pytest
-from account import Account, BudgetException
-from currency import Currency
+from model.account import Account, BudgetException
+from model.currency import Currency
 
 
 class FakeCurrency(Currency):

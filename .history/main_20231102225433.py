@@ -1,9 +1,7 @@
 import os, sys
-model_path = os.path.abspath("model")
-sys.path.append(model_path)
+path = os.path.abspath("model")
 
-repository_path = os.path.abspath("repository")
-sys.path.append(repository_path)
+sys.path.append(path)
 
 from model.account import BudgetException
 from repository.user_repository import UserRepository

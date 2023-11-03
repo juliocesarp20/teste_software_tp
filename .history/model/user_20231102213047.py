@@ -1,4 +1,4 @@
-from account import Account
+from model.account import Account
 
 
 class User:

@@ -1,7 +1,7 @@
 import pytest
-from user_repository import UserRepository, UserNotFoundException, \
+from .repository.user_repository import UserRepository, UserNotFoundException, \
     MailInvalidException, AgeInvalidException
-from currency import Currency
+from model.currency import Currency
 
 
 class MockCurrency(Currency):

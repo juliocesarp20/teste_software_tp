@@ -1,4 +1,3 @@
-import os, sys
 model_path = os.path.abspath("model")
 sys.path.append(model_path)
 

@@ -1,5 +1,5 @@
 import unittest
-from currency import BRL, EUR, USD, YEN, CAD
+from model.currency import BRL, EUR, USD, YEN, CAD
 
 
 class TestCurrencyConversion(unittest.TestCase):

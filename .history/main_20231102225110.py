@@ -1,12 +1,7 @@
-import os, sys
-model_path = os.path.abspath("model")
-sys.path.append(model_path)
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+from account import BudgetException
+from user_repository import UserRepository
 
-repository_path = os.path.abspath("repository")
-sys.path.append(repository_path)
-
-from model.account import BudgetException
-from repository.user_repository import UserRepository
 if __name__ == "__main__":
     print("Account and transaction management system")
 
