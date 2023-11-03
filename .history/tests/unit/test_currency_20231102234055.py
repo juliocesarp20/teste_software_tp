@@ -1,5 +1,6 @@
 from currency import Currency
 import pytest
+from pytest import aprox
 
 class MockCurrency(Currency):
     def __init__(self, value, name):
@@ -10,42 +11,42 @@ def test_convert_from_weaker_to_stronger():
     eur = MockCurrency(1.1, "EUR")
     amount = 100
     converted_amount = brl.convert_to(eur, amount)
-    assert converted_amount == pytest.approx(amount * (0.2 / 1.1), abs=1e-3)
+    assert pytest.approx(converted_amount, amount * (0.2 / 1.1), abs=1e-3)
 
 def test_convert_from_stronger_to_weaker():
     eur = MockCurrency(1.1, "EUR")
     usd = MockCurrency(1.0, "USD")
     amount = 100
     converted_amount = eur.convert_to(usd, amount)
-    assert converted_amount == pytest.approx(amount * (1.1 / 1.0), abs=1e-3)
+    assert pytest.approx(converted_amount, amount * (1.1 / 1.0), abs=1e-3)
 
 def test_convert_from_much_weaker_to_weaker():
     yen = MockCurrency(0.007, "YEN")
     cad = MockCurrency(0.7, "CAD")
     amount = 100
     converted_amount = yen.convert_to(cad, amount)
-    assert converted_amount == pytest.approx(amount * (0.007 / 0.7), abs=1e-3)
+    assert pytest.approx(converted_amount, amount * (0.007 / 0.7), abs=1e-3)
 
 def test_convert_from_equal_to_equal():
     usd1 = MockCurrency(1.0, "USD")
     usd2 = MockCurrency(1.0, "USD")
     amount = 100
     converted_amount = usd1.convert_to(usd2, amount)
-    assert converted_amount == pytest.approx(amount, abs=1e-3)
-
+    assert pytest.approx(converted_amount, amount, abs=1e-3)
+    
 def test_convert_from_much_weaker_to_stronger():
     yen = MockCurrency(0.007, "YEN")
     eur = MockCurrency(1.1, "EUR")
     amount = 100
     converted_amount = yen.convert_to(eur, amount)
-    assert converted_amount == pytest.approx(amount * (0.007 / 1.1), abs=1e-3)
+    assert pytest.approx(converted_amount, amount * (0.007 / 1.1), abs=1e-3)
 
 def test_convert_from_stronger_to_much_weaker():
     eur = MockCurrency(1.1, "EUR")
     yen = MockCurrency(0.007, "YEN")
     amount = 100
     converted_amount = eur.convert_to(yen, amount)
-    assert converted_amount == pytest.approx(amount * (1.1 / 0.007), abs=1e-3)
+    assert pytest.approx(converted_amount, amount * (1.1 / 0.007), abs=1e-3)
 
 def test_convert_to_invalid_target():
     brl = MockCurrency(0.2, "BRL")
@@ -61,16 +62,16 @@ def test_convert_to_negative_amount():
         eur.convert_to(negative,-100)
     assert str(exc_info.value) == "Amount cannot be negative or zero when converting currencies."
 
-def test_equal_currency_equal():
+def test_eq_equal():
     currency1 = MockCurrency(0.2, "BRL")
     currency2 = MockCurrency(0.2, "BRL")
     assert currency1 == currency2
 
-def test_equal_currency_not_equal():
+def test_eq_not_equal():
     currency1 = MockCurrency(0.2, "BRL")
     currency2 = MockCurrency(1.1, "EUR")
     assert not (currency1 == currency2)
 
-def test_equal_currency_not_instance():
+def test_eq_not_instance():
     currency = MockCurrency(0.2, "BRL")
     assert not (currency == "BRL")

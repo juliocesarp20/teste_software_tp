@@ -12,10 +12,10 @@ class Currency(ABC):
 
         if amount <= 0:
             raise ValueError("Amount cannot be negative or zero when converting currencies.")
-        
-        if self.value >=1 and target_currency.value < 1:
-            exchange_rate = self.value / target_currency.value
-        elif self.value <= 1:
+
+        if self.value == target_currency.value:
+            exchange_rate = 1
+        elif self.value < 1 < target_currency.value:
             exchange_rate = self.value / target_currency.value
         else:
             exchange_rate = self.value * target_currency.value
@@ -23,6 +23,8 @@ class Currency(ABC):
         converted_amount = amount * exchange_rate
 
         return converted_amount
+
+
 
 
     def __eq__(self, other):

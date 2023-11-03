@@ -61,16 +61,16 @@ def test_convert_to_negative_amount():
         eur.convert_to(negative,-100)
     assert str(exc_info.value) == "Amount cannot be negative or zero when converting currencies."
 
-def test_equal_currency_equal():
+def test_eq_equal():
     currency1 = MockCurrency(0.2, "BRL")
     currency2 = MockCurrency(0.2, "BRL")
     assert currency1 == currency2
 
-def test_equal_currency_not_equal():
+def test_eq_not_equal():
     currency1 = MockCurrency(0.2, "BRL")
     currency2 = MockCurrency(1.1, "EUR")
     assert not (currency1 == currency2)
 
-def test_equal_currency_not_instance():
+def test_eq_not_instance():
     currency = MockCurrency(0.2, "BRL")
     assert not (currency == "BRL")

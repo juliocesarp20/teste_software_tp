@@ -9,20 +9,24 @@ class Currency(ABC):
     def convert_to(self, target_currency, amount):
         if not isinstance(target_currency, Currency):
             raise ValueError("Target currency must be an instance of Currency.")
-
+        
         if amount <= 0:
             raise ValueError("Amount cannot be negative or zero when converting currencies.")
         
-        if self.value >=1 and target_currency.value < 1:
-            exchange_rate = self.value / target_currency.value
-        elif self.value <= 1:
-            exchange_rate = self.value / target_currency.value
+        if self.value <= 1:
+            if target_currency.value <= 1:
+                exchange_rate = self.value / target_currency.value
+            else:
+                raise ValueError("Cannot convert from weaker currency to stronger currency.")
         else:
+            if target_currency.value <= 1:
+                raise ValueError("Cannot convert from stronger currency to weaker currency.")
             exchange_rate = self.value * target_currency.value
-
+        
         converted_amount = amount * exchange_rate
-
+        
         return converted_amount
+
 
 
     def __eq__(self, other):
