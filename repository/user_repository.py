@@ -1,98 +1,113 @@
-import re
+import sqlite3
 import datetime
-
-from model.account import Account
+import re
+import json
+from model.currency import Currency
 from model.user import User
-
-
-class UserNotFoundException(Exception):
-    pass
-
-
-class MailInvalidException(Exception):
-    pass
-
-
-class AgeInvalidException(Exception):
-    pass
-
+from model.account import Account
+from repository.account_repository import AccountRepository
 
 class UserRepository:
-    def __init__(self):
-        self.users = []
-        self.current_id = 0
+    def __init__(self, database_path='test_database.db'):
+        self.conn = sqlite3.connect(database_path)
+        self.account_repository = AccountRepository(database_path)
 
     def generate_id(self):
-        self.current_id += 1
-        return self.current_id
-
-    def is_adult(self, birth_date):
-        today = datetime.date.today()
-        birth_date = datetime.datetime.strptime(birth_date, "%Y-%m-%d").date()
-        age = today.year - birth_date.year - (
-                (today.month, today.day) < (birth_date.month, birth_date.day))
-        return age >= 18
-
-    def is_valid_email(self, email):
-        pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-        return re.match(pattern, email)
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT MAX(id) FROM users')
+        result = cursor.fetchone()
+        return (result[0] or 0) + 1
 
     def create_user(self, username, password, email, birth_date, currency=None):
-        if not self.is_valid_email(email):
-            raise MailInvalidException("Invalid email format")
-        if not self.is_adult(birth_date):
-            raise AgeInvalidException("Age requirement of 18 years old not met")
-
-        user = User(self.generate_id(), username, password, email, birth_date,
-                    currency=currency)
-        self.users.append(user)
-
-        return user.id
+        cursor = self.conn.cursor()
+        user_id = self.generate_id()
+        cursor.execute('''
+            INSERT INTO users (id, username, password, email, birth_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, username, password, email, birth_date))
+        self.conn.commit()
+        self.account_repository.save_account(user_id, Account(currency=currency))
+        return user_id
 
     def edit_user(self, user_id, new_username=None, new_email=None, new_birth_date=None,
                   currency=None):
-        user = self.get_user_by_id(user_id)
-        if user is None:
-            raise UserNotFoundException(f"User with ID {user_id} not found")
+        cursor = self.conn.cursor()
+        update_fields = []
 
         if new_username:
-            user.username = new_username
+            update_fields.append(('username', new_username))
         if new_email:
-            if not self.is_valid_email(new_email):
-                raise MailInvalidException("Invalid email format")
-            user.email = new_email
+            update_fields.append(('email', new_email))
         if new_birth_date:
-            if not self.is_adult(new_birth_date):
-                raise AgeInvalidException("Age requirement of 18 years old not met")
-            user.birth_date = new_birth_date
-        if currency:
-            user.currency = currency
+            update_fields.append(('birth_date', new_birth_date))
+
+        if not update_fields:
+            return False
+
+        update_fields.append(('id', user_id))
+        update_fields_str = ', '.join([f'{field} = ?' for field, _ in update_fields])
+
+        cursor.execute(f'''
+            UPDATE users
+            SET {update_fields_str}
+            WHERE id = ?
+        ''', [value for _, value in update_fields] + [user_id])
+
+        self.conn.commit()
+        return True
 
     def delete_user(self, user_id):
-        self.users = [user for user in self.users if user.id != user_id]
+        cursor = self.conn.cursor()
+        cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        self.account_repository.delete_account_by_user_id(user_id)
+        self.conn.commit()
 
     def deposit_funds(self, user_id, amount):
-        user = self.get_user_by_id(user_id)
-        if user:
-            user.account.deposit(amount)
-        else:
-            raise UserNotFoundException(f"User with ID {user_id} not found")
+        self.account_repository.deposit_funds(user_id, amount)
 
     def withdraw_funds(self, user_id, amount):
-        user = self.get_user_by_id(user_id)
-        if user:
-            user.account.withdraw(amount)
-        else:
-            raise UserNotFoundException(f"User with ID {user_id} not found")
+        self.account_repository.withdraw_funds(user_id, amount)
 
     def get_user_by_id(self, user_id):
-        for user in self.users:
-            if user.id == user_id:
-                return user
-        return None
-    
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT users.id, users.username, users.password, users.email, 
+                   users.birth_date, accounts.balance, accounts.currency
+            FROM users
+            LEFT JOIN accounts ON users.id = accounts.user_id
+            WHERE users.id = ?
+        ''', (user_id,))
+        row = cursor.fetchone()
+
+        if row:
+            user_id, username, password, email, birth_date, balance, currency_json = row
+            currency_data = json.loads(currency_json) if currency_json else None
+            currency = Currency.from_dict(currency_data) if currency_data else None
+            account = Account(user_id, balance, currency) if balance is not None else None
+            return User(user_id, username, password, email, birth_date, account)
+        else:
+            return None
+
     def filter_users(self, filter_func):
-        return [user for user in self.users if filter_func(user)]
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id, username, password, email, birth_date FROM users')
+        rows = cursor.fetchall()
+
+        users = []
+        for row in rows:
+            user_id, username, password, email, birth_date = row
+            user = User(
+                id=user_id,
+                username=username,
+                password=password,
+                email=email,
+                birth_date=birth_date
+            )
+            if filter_func(user):
+                users.append(user)
+
+        return users
+
 
     def filter_by_username(self, username_pattern):
         def filter_func(user):
@@ -115,5 +130,5 @@ class UserRepository:
 
     def filter_by_currency(self, target_currency):
         def filter_func(user):
-            return user.account.currency == target_currency
+            return user.currency == target_currency
         return self.filter_users(filter_func)

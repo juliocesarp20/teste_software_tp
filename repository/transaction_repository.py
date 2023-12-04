@@ -1,51 +1,58 @@
-from model.account import BudgetException
+import sqlite3
 from model.transaction import Transaction
-from repository.user_repository import UserNotFoundException
-
 
 class TransactionRepository:
-    def __init__(self, user_repository):
-        self.transactions = []
-        self.user_repository = user_repository
+    def __init__(self, database_path='test_database.db'):
+        self.conn = sqlite3.connect(database_path)
 
-    def add_transaction(self, transaction):
-        """Add a transaction to the repository."""
-        self.transactions.append(transaction)
+    def save_transaction(self, transaction):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            INSERT INTO transactions (sender_id, receiver_id, amount, currency)
+            VALUES (?, ?, ?, ?)
+        ''', (transaction.sender_id, transaction.receiver_id, transaction.amount, transaction.currency))
+        self.conn.commit()
 
     def get_transaction_by_id(self, transaction_id):
-        for transaction in self.transactions:
-            if transaction.id == transaction_id:
-                return transaction
-        return None
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id, sender_id, receiver_id, amount, currency FROM transactions')
+        row = cursor.fetchone()
 
-    def execute_and_save(self, sender_id, receiver_id, amount, currency):
-        sender = self.user_repository.get_user_by_id(sender_id)
-        receiver = self.user_repository.get_user_by_id(receiver_id)
+        if row:
+            transaction_id, sender_id, receiver_id, amount, currency = row
+            transaction = Transaction(
+                id=transaction_id,
+                sender_id=sender_id,
+                receiver_id=receiver_id,
+                amount=amount,
+                currency=currency
+            )
+            return transaction
+        else:
+            return None
 
-        if sender is None or receiver is None:
-            raise UserNotFoundException("Invalid sender or receiver ID")
+    def get_all_transactions(self):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT id, sender_id, receiver_id, amount, currency FROM transactions')
+        rows = cursor.fetchall()
 
-        sender_account = sender.account
-        receiver_account = receiver.account
+        transactions = []
+        for row in rows:
+            transaction_id, sender_id, receiver_id, amount, currency = row
+            transaction = Transaction(
+                id=transaction_id,
+                sender_id=sender_id,
+                receiver_id=receiver_id,
+                amount=amount,
+                currency=currency
+            )
+            transactions.append(transaction)
 
-        if sender_account.balance < amount:
-            raise BudgetException("Insufficient funds for the transaction")
-
-        self.user_repository.withdraw_funds(sender_id, amount)
-
-        amount_in_receiver_currency = sender_account.currency.convert_to(receiver_account.currency,amount)
-
-        receiver_account.deposit(amount_in_receiver_currency)
-
-        transaction = Transaction(sender_id, receiver_id, amount_in_receiver_currency,
-                                  currency)
-        self.add_transaction(transaction)
-
-    def list_transactions(self):
-        return self.transactions
-
+        return transactions
+        
     def filter_transactions(self, filter_func):
-        return [transaction for transaction in self.transactions if filter_func(transaction)]
+        all_transactions = self.get_all_transactions()
+        return list(filter(filter_func, all_transactions))
 
     def filter_by_sender_id(self, sender_id):
         def filter_func(transaction):
@@ -59,10 +66,14 @@ class TransactionRepository:
 
     def filter_by_amount(self, min_amount, max_amount):
         def filter_func(transaction):
-            return min_amount <= transaction.amount.value <= max_amount
+            print(transaction.amount)
+            return min_amount <= transaction.amount <= max_amount
         return self.filter_transactions(filter_func)
 
     def filter_by_currency(self, currency):
         def filter_func(transaction):
             return transaction.currency == currency
         return self.filter_transactions(filter_func)
+
+    def close_connection(self):
+        self.conn.close()

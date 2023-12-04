@@ -2,28 +2,10 @@ class BudgetException(BaseException):
     pass
 
 class Account:
-    def __init__(self,initial_balance=0,currency=None):
+    def __init__(self,user_id = None, initial_balance=0,currency=None):
         self.balance = initial_balance
         self.currency = currency
-
-    def deposit(self, amount, target_currency=None):
-        if amount <= 0:
-            raise BudgetException(
-                "Invalid deposit amount. Amount must be greater than zero.")
-        if self.currency and target_currency and self.currency != target_currency:
-            raise ValueError("Currency conversion not supported.")
-        self.balance += amount
-
-    def withdraw(self, amount, target_currency=None):
-        if amount <= 0:
-            raise BudgetException(
-                "Invalid withdrawal amount. Amount must be greater than zero.")
-        if amount > self.balance:
-            raise BudgetException(
-                "Insufficient funds. Cannot withdraw more than the available balance.")
-        if self.currency and target_currency and self.currency != target_currency:
-            raise ValueError("Currency conversion not supported.")
-        self.balance -= amount
+        self.user_id = user_id
 
     def get_balance(self):
         return self.balance

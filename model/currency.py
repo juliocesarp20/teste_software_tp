@@ -1,7 +1,4 @@
-from abc import ABC, abstractmethod
-
-class Currency(ABC):
-    @abstractmethod
+class Currency():
     def __init__(self, value, name, symbol = "$"):
         self.value = value
         self.name = name
@@ -24,7 +21,17 @@ class Currency(ABC):
         converted_amount = amount * exchange_rate
 
         return converted_amount
+    
+    def to_dict(self):
+        return {
+            "value": self.value,
+            "name": self.name,
+            "symbol": self.symbol
+        }
 
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["value"], data["name"], data["symbol"])
 
     def __eq__(self, other):
         if isinstance(other, Currency):
