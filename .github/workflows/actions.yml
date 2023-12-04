@@ -22,7 +22,7 @@ jobs:
           pip install -r requirements.txt
           pip install .
       - name: Run unit tests
-        run: pytest tests/unit
+        run: python -m pytest tests/unit --cov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
@@ -44,7 +44,7 @@ jobs:
           pip install -r requirements.txt
           pip install .
       - name: Run integration tests
-        run: pytest tests/integration
+        run: python -m pytest tests/integration --cov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
