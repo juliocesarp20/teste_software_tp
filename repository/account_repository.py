@@ -5,8 +5,8 @@ from model.account import Account
 from model.account import BudgetException
 
 class AccountRepository:
-    def __init__(self, database_path='test_database.db'):
-        self.conn = sqlite3.connect(database_path)
+    def __init__(self, conn):
+        self.conn = conn
 
     def save_account(self, user_id, account):
         cursor = self.conn.cursor()
@@ -47,9 +47,9 @@ class AccountRepository:
             cursor = self.conn.cursor()
             cursor.execute('''
                 UPDATE accounts
-                SET balance = ?
+                SET balance = balance - ?
                 WHERE user_id = ?
-            ''', (account.balance, user_id))
+            ''', (amount, user_id))
             self.conn.commit()
         else:
             raise BudgetException(f"Account not found for user_id {user_id}")

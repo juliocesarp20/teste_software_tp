@@ -2,8 +2,8 @@ import sqlite3
 from model.transaction import Transaction
 
 class TransactionRepository:
-    def __init__(self, database_path='test_database.db'):
-        self.conn = sqlite3.connect(database_path)
+    def __init__(self, conn):
+        self.conn = conn
 
     def save_transaction(self, transaction):
         cursor = self.conn.cursor()

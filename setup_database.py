@@ -1,8 +1,8 @@
 
 import sqlite3
-def create_database():
+def create_database(path):
     # Create or connect to the SQLite database file
-    conn = sqlite3.connect('test_database.db')
+    conn = sqlite3.connect()
 
     cursor = conn.cursor()
 
@@ -55,5 +55,5 @@ def create_database():
     conn.close()
 
 if __name__ == "__main__":
-    create_database()
+    create_database('test_database.db')
     print("Database setup completed.")

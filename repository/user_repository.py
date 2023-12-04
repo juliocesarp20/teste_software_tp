@@ -8,9 +8,9 @@ from model.account import Account
 from repository.account_repository import AccountRepository
 
 class UserRepository:
-    def __init__(self, database_path='test_database.db'):
-        self.conn = sqlite3.connect(database_path)
-        self.account_repository = AccountRepository(database_path)
+    def __init__(self, conn):
+        self.conn = conn
+        self.account_repository = AccountRepository(conn)
 
     def generate_id(self):
         cursor = self.conn.cursor()

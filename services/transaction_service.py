@@ -18,6 +18,7 @@ class TransactionService:
 
         if sender_account.balance < amount:
             raise BudgetException("Insufficient funds for the transaction")
+    
 
         self.user_repository.withdraw_funds(sender_id, amount)
 

@@ -1,6 +1,6 @@
 import os
 import sys
-
+import sqlite3
 # Append model, repository, and service paths to sys.path
 model_path = os.path.abspath("model")
 sys.path.append(model_path)
@@ -24,10 +24,11 @@ from repository.loan_repository import LoanRepository
 def main():
     print("Account and transaction management system")
 
+    conn = sqlite3.connect("test_database.db")
     # Instantiate repositories
-    user_repository = UserRepository()
-    transaction_repository = TransactionRepository()
-    loan_repository = LoanRepository()
+    user_repository = UserRepository(conn)
+    transaction_repository = TransactionRepository(conn)
+    loan_repository = LoanRepository(conn)
 
     # Instantiate services with repositories
     user_service = UserService(user_repository)

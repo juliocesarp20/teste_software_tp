@@ -2,8 +2,8 @@ import sqlite3
 from model.loan import Loan
 
 class LoanRepository:
-    def __init__(self, database_path='test_database.db'):
-        self.conn = sqlite3.connect(database_path)
+    def __init__(self, conn):
+        self.conn = conn
 
     def save_loan(self, loan):
         cursor = self.conn.cursor()
