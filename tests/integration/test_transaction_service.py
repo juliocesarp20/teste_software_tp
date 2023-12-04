@@ -68,6 +68,26 @@ class TestTransactionService:
         assert receiver_balance == pytest.approx(45.45, rel=1e-1)
         assert len(transactions) == 1
 
+    def test_execute_and_save_successful_transaction_with_loan_and_filter_by_brl(self, user_service_instance, transaction_service_instance, loan_service_instance):
+        sender_id = user_service_instance.create_user("Sender", "password", "sender@example.com", "1990-01-01",
+                                                      currency=Currency(1.0, "USD"))
+        receiver_id = user_service_instance.create_user("Receiver", "password", "receiver@example.com", "1990-01-01",
+                                                         currency=Currency(0.2, "BRL"))
+        third_user_id = user_service_instance.create_user("ThirdUser", "password", "thirduser@example.com", "1990-01-01",
+                                                           currency=Currency(1.1, "EUR"))
+
+        loan_service_instance.process_loan(sender_id, 100.0, 0.1, 12)
+
+        transaction_service_instance.execute_and_save(sender_id, receiver_id, 50.0, Currency(1.0, "USD"))
+        transaction_service_instance.execute_and_save(receiver_id, third_user_id, 30.0, Currency(1.1, "EUR"))
+        transaction_service_instance.execute_and_save(third_user_id, sender_id, 5.0, Currency(0.2, "BRL"))
+
+        transactions_brl = transaction_service_instance.filter_by_currency("BRL")
+
+        assert len(transactions_brl) == 1
+        assert transactions_brl[0].amount == 5.5
+
+
     def test_execute_and_save_invalid_users(self, transaction_service_instance):
         with pytest.raises(UserNotFoundException, match="Invalid sender or receiver ID"):
             transaction_service_instance.execute_and_save(100, 200, 50.0, Currency(1.0, "USD"))
