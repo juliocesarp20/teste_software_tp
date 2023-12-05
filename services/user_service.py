@@ -24,6 +24,9 @@ class UserService:
     def is_valid_email(self, email):
         pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
         return re.match(pattern, email)
+    
+    def get_all_users(self):
+        return self.user_repository.get_all_users()
 
     def create_user(self, username, password, email, birth_date, currency=None):
         if not self.is_valid_email(email):

@@ -2,7 +2,7 @@
 import sqlite3
 def create_database(path):
     # Create or connect to the SQLite database file
-    conn = sqlite3.connect()
+    conn = sqlite3.connect(path)
 
     cursor = conn.cursor()
 

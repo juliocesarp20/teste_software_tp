@@ -68,6 +68,27 @@ class UserRepository:
     def withdraw_funds(self, user_id, amount):
         self.account_repository.withdraw_funds(user_id, amount)
 
+    def get_all_users(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT users.id, users.username, users.password, users.email, 
+                    users.birth_date, accounts.balance, accounts.currency
+            FROM users
+            LEFT JOIN accounts ON users.id = accounts.user_id
+        ''')
+        rows = cursor.fetchall()
+
+        users = []
+        for row in rows:
+            user_id, username, password, email, birth_date, balance, currency_json = row
+            currency_data = json.loads(currency_json) if currency_json else None
+            currency = Currency.from_dict(currency_data) if currency_data else None
+            account = Account(user_id, balance, currency) if balance is not None else None
+            user = User(user_id, username, password, email, birth_date, account)
+            users.append(user)
+
+        return users
+
     def get_user_by_id(self, user_id):
         cursor = self.conn.cursor()
         cursor.execute('''
